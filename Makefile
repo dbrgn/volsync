@@ -1,14 +1,15 @@
 # Devices
-MCU_GCC    = attiny44a
-MCU_DUDE   = t44
+# To list available avrdude devices, use `avrdude -p ?`
+MCU_GCC    = atmega328p
+MCU_DUDE   = m328p 
 PROGRAMMER = usbasp
 
 # ATtiny13a
 # To calculate the fuses, see http://www.engbedded.com/fusecalc
 LFUSE      = 0x62
-HFUSE      = 0xdf
+HFUSE      = 0xd9
 EFUSE      = 0xff
-BITCLOCK   = 250
+BITCLOCK   = 5
 F_CPU      = 1000000  # Main clock frequency (8.0Mhz / 8 = 1.0 MHz)
 
 # GCC config
@@ -27,8 +28,11 @@ CFLAGS     += -Wall -Wextra -Wstrict-prototypes
 # Target
 TARGET     = main.hex
 
+# Libraries
+LIBS       = USART.o
+
 # Avrdude config
-DUDE = avrdude
+DUDE       = avrdude
 
 
 %.o: %.c
@@ -37,8 +41,8 @@ DUDE = avrdude
 %.debug.o: %.c
 	$(CC) $(CFLAGS) -g -c $< -o $@
 
-%.elf: %.o
-	$(CC) $(CFLAGS) $< -o $@
+%.elf: %.o $(LIBS)
+	$(CC) $(CFLAGS) $< $(LIBS) -o $@
 
 %.hex: %.elf
 	$(OBJCOPY) -O ihex -R .eeprom -R .fuse -R .lock -R .signature $< $@
